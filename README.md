@@ -11,3 +11,8 @@ The Python CSV module seems to be OK with it, but the UTF8 handing in
 Python 2 isn't much to write home about.
 
 I'm now going to try to load the array into Scikit.
+
+## TODO
+
+1. Load data into Scikit
+2. Draw some charts to understand the type of data we're working with
