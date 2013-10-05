@@ -19,3 +19,4 @@ def load_data_frame(path):
     return pd.DataFrame.from_records([x for x in file], columns=columns)
 
 insults = load_data_frame('../data/train-utf8.csv')
+insults['Date'] = pd.to_datetime(insults['Date'])
