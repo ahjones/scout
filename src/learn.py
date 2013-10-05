@@ -1,5 +1,6 @@
 import csv
 import codecs
+import pandas as pd
 
 def unicode_csv_reader(unicode_csv_data):
     csv_reader = csv.reader(utf_8_encoder(unicode_csv_data))
@@ -11,9 +12,5 @@ def utf_8_encoder(unicode_csv_data):
         yield line.encode('utf-8')
 
 file = unicode_csv_reader(codecs.open('../data/train-utf8.csv', 'r', 'utf-8'))
-print file.next()
-print file.next()
-print file.next()
-print file.next()
-print file.next()
-print file.next()
+columns = next(file)
+df = pd.DataFrame.from_records([x for x in file], columns=columns)
