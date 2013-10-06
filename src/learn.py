@@ -1,6 +1,7 @@
 import csv
 import codecs
 import pandas as pd
+from sklearn.linear_model import LogisticRegression
 from sklearn.feature_extraction.text import CountVectorizer
 
 def load_data_frame(path):
