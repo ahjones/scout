@@ -1,6 +1,7 @@
 import csv
 import codecs
 import pandas as pd
+from sklearn.feature_extraction.text import CountVectorizer
 
 def load_data_frame(path):
 
@@ -20,3 +21,6 @@ def load_data_frame(path):
 
 insults = load_data_frame('../data/train-utf8.csv')
 insults['Date'] = pd.to_datetime(insults['Date'])
+
+v = CountVectorizer(min_df = 1)
+x = v.fit_transform(insults['Comment'])
