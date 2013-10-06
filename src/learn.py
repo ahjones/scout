@@ -28,23 +28,32 @@ insults = load_data_frame('../data/train-utf8.csv')
 insults['Date'] = pd.to_datetime(insults['Date'])
 insults['Insult'] = insults['Insult'].apply(int)
 
-v = CountVectorizer(min_df = 1)
-x = v.fit_transform(insults['Comment'])
+def classifiers():
+    v = CountVectorizer(min_df = 1)
+    x = v.fit_transform(insults['Comment'])
 
-#Learn from the fit
-lr = LogisticRegression()
-cv_array = cross_val_score(lr, x, insults.Insult, cv=5, scoring='roc_auc')
-cv_mean = sum(cv_array)/len(cv_array) #0.872
+    #Learn from the fit
+    lr = LogisticRegression()
+    cv_array = cross_val_score(lr, x, insults.Insult, cv=5, scoring='roc_auc')
+    cv_mean = sum(cv_array)/len(cv_array) #0.872
 
-t = DecisionTreeClassifier()
-t_array = cross_val_score(t, x.todense(), insults.Insult, cv=5, scoring='roc_auc')
-t_mean = sum(t_array)/len(t_array) #0.698
+    t = DecisionTreeClassifier()
+    t_array = cross_val_score(t, x.todense(), insults.Insult, cv=5, scoring='roc_auc')
+    t_mean = sum(t_array)/len(t_array) #0.698
 
-forest_array = cross_val_score(RandomForestClassifier(), x.todense(), insults.Insult, cv=5, scoring='roc_auc')
-forest_mean = sum(forest_array)/len(forest_array) #0.817
+    forest_array = cross_val_score(RandomForestClassifier(), x.todense(), insults.Insult, cv=5, scoring='roc_auc')
+    forest_mean = sum(forest_array)/len(forest_array) #0.817
 
-ada_array = cross_val_score(AdaBoostClassifier(), x.todense(), insults.Insult, cv=5, scoring='roc_auc')
-ada_mean = sum(ada_array)/len(ada_array) #0.842
+    ada_array = cross_val_score(AdaBoostClassifier(), x.todense(), insults.Insult, cv=5, scoring='roc_auc')
+    ada_mean = sum(ada_array)/len(ada_array) #0.842
 
-#Try a prediction
-#lr.predict(v.transform(['have a nice day']))
+    #lr.predict(v.transform(['have a nice day']))
+
+#Grid search cross validator to find a good set of parameters
+from sklearn.pipeline import Pipeline
+from sklearn.grid_search import GridSearchCV
+pipeline = Pipeline([('vect', CountVectorizer()), ('tfidf', TfidfTransformer()), ('lr', LogisticRegression())])
+arameters = {'vect__ngram_range': ((1,1), (1,2)), 'vect__max_df': (0.5, 0.75, 1.0)}
+gs = GridSearchCV(pipeline, parameters, n_jobs=-1, verbose=1, scoring='roc_auc')
+gs.fit(insults.Comment, insults.Insult)
+gs.best_score_ #0.875
