@@ -24,3 +24,10 @@ insults['Date'] = pd.to_datetime(insults['Date'])
 
 v = CountVectorizer(min_df = 1)
 x = v.fit_transform(insults['Comment'])
+
+#Learn from the fit
+lr = LogisticRegression()
+lr.fit(x, insults.Insult)
+
+#Try a prediction
+lr.predict(v.transform(['have a nice day']))
