@@ -1,8 +1,11 @@
 import csv
 import codecs
 import pandas as pd
+
+from sklearn.cross_validation import cross_val_score
 from sklearn.linear_model import LogisticRegression
 from sklearn.feature_extraction.text import CountVectorizer
+
 
 def load_data_frame(path):
 
@@ -22,13 +25,15 @@ def load_data_frame(path):
 
 insults = load_data_frame('../data/train-utf8.csv')
 insults['Date'] = pd.to_datetime(insults['Date'])
+insults['Insult'] = insults['Insult'].apply(int)
 
 v = CountVectorizer(min_df = 1)
 x = v.fit_transform(insults['Comment'])
 
 #Learn from the fit
 lr = LogisticRegression()
-lr.fit(x, insults.Insult)
+cv_array = cross_val_score(lr, x, insults.Insult, cv=5)
+cv_mean = sum(cv_array)/len(cv_array) #0.842
 
 #Try a prediction
-lr.predict(v.transform(['have a nice day']))
+#lr.predict(v.transform(['have a nice day']))

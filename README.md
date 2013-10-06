@@ -14,7 +14,6 @@ I'm now going to try to load the array into Scikit.
 
 ## TODO
 
-1. Cross validation
-2. Try decision tree?
-3. Try random forest?
-4. Ensemble methods
+1. Try decision tree?
+2. Try random forest?
+3. Ensemble methods
