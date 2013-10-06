@@ -6,7 +6,7 @@ from sklearn.cross_validation import cross_val_score
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
-from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
 
 def load_data_frame(path):
 
@@ -53,7 +53,20 @@ def classifiers():
 from sklearn.pipeline import Pipeline
 from sklearn.grid_search import GridSearchCV
 pipeline = Pipeline([('vect', CountVectorizer()), ('tfidf', TfidfTransformer()), ('lr', LogisticRegression())])
-arameters = {'vect__ngram_range': ((1,1), (1,2)), 'vect__max_df': (0.5, 0.75, 1.0)}
+parameters = {'vect__ngram_range': ((1,1), (1,2)), 'vect__max_df': (0.5, 0.75, 1.0)}
 gs = GridSearchCV(pipeline, parameters, n_jobs=-1, verbose=1, scoring='roc_auc')
 gs.fit(insults.Comment, insults.Insult)
 gs.best_score_ #0.875
+
+
+test = load_data_frame('../data/test-utf8.csv')
+estimates = gs.best_estimator_.predict_proba(test.Comment)
+
+result = open('result', 'w')
+result.write("Id, Insult\n")
+for row in test.iterrows():
+    comment = row[1]["Comment"]
+    num = row[1]["id"]
+    prediction = gs.best_estimator_.predict_proba([comment])[0][1]
+    result.write("%s, %f\n" % (num, prediction))
+result.close()
