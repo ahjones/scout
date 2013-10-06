@@ -4,8 +4,9 @@ import pandas as pd
 
 from sklearn.cross_validation import cross_val_score
 from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.enseble import AdaBoostClassifier, RandomForestClassifier
 from sklearn.feature_extraction.text import CountVectorizer
-
 
 def load_data_frame(path):
 
@@ -32,8 +33,18 @@ x = v.fit_transform(insults['Comment'])
 
 #Learn from the fit
 lr = LogisticRegression()
-cv_array = cross_val_score(lr, x, insults.Insult, cv=5)
+cv_array = cross_val_score(lr, x, insults.Insult, cv=5, scoring='roc_auc')
 cv_mean = sum(cv_array)/len(cv_array) #0.842
+
+t = DecisionTreeClassifier()
+t_array = cross_val_score(t, x.todense(), insults.Insult, cv=5, scoring='roc_auc')
+t_mean = sum(t_array)/len(t_array) #0.786
+
+forest_array = cross_val_score(RandomForestClassifier(), x.todense(), insults.Insult, cv=5, scoring='roc_auc')
+forest_mean = sum(forest_array)/len(forest_array) #0.816
+
+ada_array = cross_val_score(AdaBoostClassifier(), x.todense(), insults.Insult, cv=5, scoring='roc_auc')
+ada_mean = sum(ada_array)/len(ada_array)
 
 #Try a prediction
 #lr.predict(v.transform(['have a nice day']))
