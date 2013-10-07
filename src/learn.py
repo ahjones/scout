@@ -50,40 +50,22 @@ if __name__ == '__main__':
         v = CountVectorizer(min_df = 1)
         x = v.fit_transform(insults['Comment'])
 
-        #Learn from the fit
- #       lr = LogisticRegression()
- #       cv_array = cross_val_score(lr, x, insults.Insult, cv=5, scoring='roc_auc')
- #       cv_mean = sum(cv_array)/len(cv_array) #0.872
- #       print "CV Mean\n"
- #       print cv_mean
+        print "CV Mean"
+        print evaluate(LogisticRegression(), x, insults.Insult) #0.872
 
- #       t = DecisionTreeClassifier()
- #       t_array = cross_val_score(t, x.todense(), insults.Insult, cv=5, scoring='roc_auc')
- #       t_mean = sum(t_array)/len(t_array) #0.698
- #       print "T Mean\n"
- #       print t_mean
+        print "T Mean"
+        print evaluate(DecisionTreeClassifier(), x.todense(), insults.Insult) #0.698
 
-#        forest_array = cross_val_score(RandomForestClassifier(), x.todense(), insults.Insult, cv=5, scoring='roc_auc')
-#        forest_mean = sum(forest_array)/len(forest_array) #0.817
-#        print "Forest Mean\n"
-#        print forest_mean
+        print "Forest Mean"
+        print evaluate(RandomForestClassifier(), x.todense(), insults.Insult) #0.817
 
-#        ada_array = cross_val_score(AdaBoostClassifier(), x.todense(), insults.Insult, cv=5, scoring='roc_auc')
-#        ada_mean = sum(ada_array)/len(ada_array) #0.842
-#        print "ADA Mean\n"
-#        print ada_mean
+        print "ADA Mean"
+        print evaluate(AdaBoostClassifier(), x.todense(), insults.Insult) #0.842
 
-        nbClass = MultinomialNB(alpha=1.0, class_prior=None, fit_prior=True)
-
-        nb_array = cross_val_score(nbClass, x.todense(), insults.Insult, cv=5, scoring='roc_auc')
-        nb_mean = sum(nb_array)/len(nb_array) #0.8064
-        print "NB Mean\n"
-        print nb_mean
-
-        #lr.predict(v.transform(['have a nice day']))
+        print "NB Mean"
+        print evaluate(MultinomialNB(alpha=1.0, class_prior=None, fit_prior=True), x.todense(), insults.Insult) #0.806
 
         #Grid search cross validator to find a good set of parameters
-
         anova_filter = SelectKBest(f_regression, k=5)
         clf = svm.SVC(kernel='linear')
         # ('anova', anova_filter), ('svc', clf)
