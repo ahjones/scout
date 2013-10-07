@@ -85,15 +85,13 @@ if __name__ == '__main__':
         test = load_data_frame('../data/test-utf8.csv')
         estimates = gs.best_estimator_.predict_proba(test.Comment)
 
-        result = open('result', 'w')
-        result.write("Id, Insult\n")
-        for row in test.iterrows():
-            comment = row[1]["Comment"]
-            num = row[1]["id"]
-            prediction = gs.best_estimator_.predict_proba([comment])[0][1]
-#            print ("%s, %f\n" % (num, prediction))
-            result.write("%s, %f\n" % (num, prediction))
-        result.close()
+        with ('result', 'w') as result:
+            result.write("Id, Insult\n")
+            for row in test.iterrows():
+                comment = row[1]["Comment"]
+                num = row[1]["id"]
+                prediction = gs.best_estimator_.predict_proba([comment])[0][1]
+                result.write("%s, %f\n" % (num, prediction))
 
 # run the classifiers
-#classifiers()
+classifiers()
