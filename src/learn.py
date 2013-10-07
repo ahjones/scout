@@ -35,48 +35,53 @@ insults['Date'] = pd.to_datetime(insults['Date'])
 # convert the Insult result field to an int
 insults['Insult'] = insults['Insult'].apply(int)
 
-def classifiers():
-    if __name__ == '__main__':
+def evaluate(predictor, x, y):
+    cv_array = cross_val_score(predictor, x, y, cv=5, scoring='roc_auc')
+    cv_mean = sum(cv_array) / len(cv_array)
+    return cv_mean
 
+
+if __name__ == '__main__':
+    def classifiers():
         v = CountVectorizer(min_df = 1)
         x = v.fit_transform(insults['Comment'])
-    
+
         #Learn from the fit
  #       lr = LogisticRegression()
  #       cv_array = cross_val_score(lr, x, insults.Insult, cv=5, scoring='roc_auc')
  #       cv_mean = sum(cv_array)/len(cv_array) #0.872
  #       print "CV Mean\n"
  #       print cv_mean
-    
+
  #       t = DecisionTreeClassifier()
  #       t_array = cross_val_score(t, x.todense(), insults.Insult, cv=5, scoring='roc_auc')
  #       t_mean = sum(t_array)/len(t_array) #0.698
  #       print "T Mean\n"
  #       print t_mean
-    
+
 #        forest_array = cross_val_score(RandomForestClassifier(), x.todense(), insults.Insult, cv=5, scoring='roc_auc')
 #        forest_mean = sum(forest_array)/len(forest_array) #0.817
 #        print "Forest Mean\n"
 #        print forest_mean
-    
+
 #        ada_array = cross_val_score(AdaBoostClassifier(), x.todense(), insults.Insult, cv=5, scoring='roc_auc')
 #        ada_mean = sum(ada_array)/len(ada_array) #0.842
 #        print "ADA Mean\n"
 #        print ada_mean
 
-        nbClass = MultinomialNB(alpha=1.0, class_prior=None, fit_prior=True)    
+        nbClass = MultinomialNB(alpha=1.0, class_prior=None, fit_prior=True)
 
         nb_array = cross_val_score(nbClass, x.todense(), insults.Insult, cv=5, scoring='roc_auc')
         nb_mean = sum(nb_array)/len(nb_array) #0.8064
         print "NB Mean\n"
         print nb_mean
-        
+
         #lr.predict(v.transform(['have a nice day']))
-    
+
         #Grid search cross validator to find a good set of parameters
         from sklearn.pipeline import Pipeline
         from sklearn.grid_search import GridSearchCV
-        from sklearn import svm        
+        from sklearn import svm
         from sklearn.feature_selection import SelectKBest
         from sklearn.feature_selection import f_regression
 
@@ -91,14 +96,14 @@ def classifiers():
                     'vect__max_df': (0.5, 0.75, 1.0)}
         gs = GridSearchCV(pipeline, parameters, n_jobs=-1, verbose=1, scoring='roc_auc')
         gs.fit(insults.Comment, insults.Insult)
-        print "Best Score"        
+        print "Best Score"
         print gs.best_score_ #0.875
         # print out the params that had the most effect on the score
         print gs.best_params_
-        
+
         test = load_data_frame('../data/test-utf8.csv')
         estimates = gs.best_estimator_.predict_proba(test.Comment)
-        
+
         result = open('result', 'w')
         result.write("Id, Insult\n")
         for row in test.iterrows():
@@ -110,4 +115,4 @@ def classifiers():
         result.close()
 
 # run the classifiers
-classifiers()
+#classifiers()
