@@ -8,6 +8,10 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.ensemble import AdaBoostClassifier, RandomForestClassifier
 from sklearn.feature_extraction.text import CountVectorizer, TfidfTransformer
+from sklearn.pipeline import Pipeline
+from sklearn.grid_search import GridSearchCV
+from sklearn import svm
+from sklearn.feature_selection import SelectKBest, f_regression
 
 def load_data_frame(path):
 
@@ -79,11 +83,6 @@ if __name__ == '__main__':
         #lr.predict(v.transform(['have a nice day']))
 
         #Grid search cross validator to find a good set of parameters
-        from sklearn.pipeline import Pipeline
-        from sklearn.grid_search import GridSearchCV
-        from sklearn import svm
-        from sklearn.feature_selection import SelectKBest
-        from sklearn.feature_selection import f_regression
 
         anova_filter = SelectKBest(f_regression, k=5)
         clf = svm.SVC(kernel='linear')
