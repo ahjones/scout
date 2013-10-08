@@ -44,54 +44,50 @@ def evaluate(predictor, x, y):
     cv_mean = sum(cv_array) / len(cv_array)
     return cv_mean
 
+def classifiers():
+    v = CountVectorizer(min_df = 1)
+    x = v.fit_transform(insults['Comment'])
+
+    print "CV Mean"
+    print evaluate(LogisticRegression(), x, insults.Insult) #0.872
+
+    print "T Mean"
+    print evaluate(DecisionTreeClassifier(), x.todense(), insults.Insult) #0.698
+
+    print "Forest Mean"
+    print evaluate(RandomForestClassifier(), x.todense(), insults.Insult) #0.817
+
+    print "ADA Mean"
+    print evaluate(AdaBoostClassifier(), x.todense(), insults.Insult) #0.842
+
+    print "NB Mean"
+    print evaluate(MultinomialNB(alpha=1.0, class_prior=None, fit_prior=True), x.todense(), insults.Insult) #0.806
+
+def gridsearch():
+    pipeline = Pipeline([('vect', CountVectorizer()), ('tfidf', TfidfTransformer()), ('lr', LogisticRegression())])
+    parameters = {
+                'tfidf__norm': ('l1', 'l2'),
+                'tfidf__use_idf': (True, False),
+                'vect__ngram_range': ((1,1), (2,3)),
+                'vect__max_df': (0.5, 0.75, 1.0)}
+    gs = GridSearchCV(pipeline, parameters, n_jobs=-1, verbose=1, scoring='roc_auc')
+    gs.fit(insults.Comment, insults.Insult)
+    print "Best Score"
+    print gs.best_score_ #0.875
+    # print out the params that had the most effect on the score
+    print gs.best_params_
+
+    test = load_data_frame('../data/test-utf8.csv')
+    estimates = gs.best_estimator_.predict_proba(test.Comment)
+
+    with open('result', 'w') as result:
+        result.write("Id, Insult\n")
+        for row in test.iterrows():
+            comment = row[1]["Comment"]
+            num = row[1]["id"]
+            prediction = gs.best_estimator_.predict_proba([comment])[0][1]
+            result.write("%s, %f\n" % (num, prediction))
 
 if __name__ == '__main__':
-    def classifiers():
-        v = CountVectorizer(min_df = 1)
-        x = v.fit_transform(insults['Comment'])
-
-        print "CV Mean"
-        print evaluate(LogisticRegression(), x, insults.Insult) #0.872
-
-        print "T Mean"
-        print evaluate(DecisionTreeClassifier(), x.todense(), insults.Insult) #0.698
-
-        print "Forest Mean"
-        print evaluate(RandomForestClassifier(), x.todense(), insults.Insult) #0.817
-
-        print "ADA Mean"
-        print evaluate(AdaBoostClassifier(), x.todense(), insults.Insult) #0.842
-
-        print "NB Mean"
-        print evaluate(MultinomialNB(alpha=1.0, class_prior=None, fit_prior=True), x.todense(), insults.Insult) #0.806
-
-        #Grid search cross validator to find a good set of parameters
-        anova_filter = SelectKBest(f_regression, k=5)
-        clf = svm.SVC(kernel='linear')
-        # ('anova', anova_filter), ('svc', clf)
-        pipeline = Pipeline([('vect', CountVectorizer()), ('tfidf', TfidfTransformer()), ('lr', LogisticRegression())])
-        parameters = {
-                    'tfidf__norm': ('l1', 'l2'),
-                    'tfidf__use_idf': (True, False),
-                    'vect__ngram_range': ((1,1), (2,3)),
-                    'vect__max_df': (0.5, 0.75, 1.0)}
-        gs = GridSearchCV(pipeline, parameters, n_jobs=-1, verbose=1, scoring='roc_auc')
-        gs.fit(insults.Comment, insults.Insult)
-        print "Best Score"
-        print gs.best_score_ #0.875
-        # print out the params that had the most effect on the score
-        print gs.best_params_
-
-        test = load_data_frame('../data/test-utf8.csv')
-        estimates = gs.best_estimator_.predict_proba(test.Comment)
-
-        with open('result', 'w') as result:
-            result.write("Id, Insult\n")
-            for row in test.iterrows():
-                comment = row[1]["Comment"]
-                num = row[1]["id"]
-                prediction = gs.best_estimator_.predict_proba([comment])[0][1]
-                result.write("%s, %f\n" % (num, prediction))
-
-# run the classifiers
-classifiers()
+    #classifiers()
+    gridsearch()
